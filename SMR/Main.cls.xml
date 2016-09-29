@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
 <Class name="SMR.Main">
+<Description>
+Utility to convert 2016.1 System methods calls into 2016.2 compliant code.</Description>
 <Abstract>1</Abstract>
 <TimeCreated>64190,49345.679318</TimeCreated>
 
 <Method name="RemoveFromAllClasses">
-<Description>
-w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromAllClasses())</Description>
+<Description><![CDATA[
+Entry point. Converts all user classes.
+Params: Replace - what to replace $ with. Capitalize - capitalize the letter after $.
+For example, with defaults: {}.$fromJSON -> {}.%FromJSON
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromAllClasses())]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
@@ -20,8 +25,11 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromAllClasses())</Descrip
 </Method>
 
 <Method name="RemoveFromSubclassesOf">
-<Description>
-w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromSubclassesOf())</Description>
+<Description><![CDATA[
+Entry point. Converts all subclasses Of class (and class itself).
+Params: Replace - what to replace $ with. Capitalize - capitalize the letter after $.
+For example, with defaults: {}.$fromJSON -> {}.%FromJSON
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromSubclassesOf())]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Class:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
@@ -44,8 +52,11 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromSubclassesOf())</Descr
 </Method>
 
 <Method name="RemoveFromMatchingClasses">
-<Description>
-w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromMatchingClasses())</Description>
+<Description><![CDATA[
+Entry point. Converts all classes matching Mask pattern .
+Params: Mask - pattern, value for LIKE SQL query. Replace - what to replace $ with. Capitalize - capitalize the letter after $.
+For example, with defaults: {}.$fromJSON -> {}.%FromJSON
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromMatchingClasses())]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Mask:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
@@ -71,6 +82,7 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromMatchingClasses())</De
 
 <Method name="RemoveFromClassLocal">
 <Description>
+Iterates over Classes local and converts them.
 w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClassLocal())</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec><![CDATA[&Classes:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES]]></FormalSpec>
@@ -89,8 +101,11 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClassLocal())</Descrip
 </Method>
 
 <Method name="RemoveFromClass">
-<Description>
-w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClass())</Description>
+<Description><![CDATA[
+Convert one class.
+Params: Replace - what to replace $ with. Capitalize - capitalize the letter after $.
+For example, with defaults: {}.$fromJSON -> {}.%FromJSON
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClass())]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Class:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
@@ -112,8 +127,10 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClass())</Description>
 </Method>
 
 <Method name="ReplaceSystemCalls">
-<Description>
-w $System.Status.GetErrorText(##class(SMR.Main).ReplaceText(.Text))</Description>
+<Description><![CDATA[
+Replace all .$ usage
+For example, with defaults: {}.$fromJSON -> {}.%FromJSON
+w $System.Status.GetErrorText(##class(SMR.Main).ReplaceText(.Text))]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec><![CDATA[&Text,Replace:%String="%",Capitalize:%Boolean=$$$YES]]></FormalSpec>
 <ReturnType>%Status</ReturnType>
@@ -131,14 +148,17 @@ w $System.Status.GetErrorText(##class(SMR.Main).ReplaceText(.Text))</Description
 
 <Method name="ReplaceDynamicClasses">
 <Description>
-Replace %Library.Object with %Library.DynamicObject etc
+Replace %Library.Object with %Library.DynamicObject etc...
 w $System.Status.GetErrorText(##class(SMR.Main).ReplaceDynamicClasses(.Text))</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec><![CDATA[&Text]]></FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	#Dim sc,sc1 As %Status = $$$OK
-	Set ReplaceList = $LB($LB("%Library\.Object","%Library.DynamicObject"),$LB("%Object","%DynamicObject"),$LB("%Library.Array","%Library.DynamicArray"),$LB("%Array","%DynamicArray"))
+	Set ReplaceList = $LB(	$LB("%Library\.Object","%Library\.DynamicObject"),
+							$LB("%Object","%DynamicObject"),
+							$LB("%Library\.Array","%Library\.DynamicArray"),
+							$LB("%Array","%DynamicArray"))
 	For i=1:1:$LL(ReplaceList) {
 		Set ReplacePair = $LG(ReplaceList, i)
 		Set sc1 = ..ReplaceRegexp(.Text, $LG(ReplacePair, 1), $LG(ReplacePair, 2))
@@ -150,6 +170,7 @@ w $System.Status.GetErrorText(##class(SMR.Main).ReplaceDynamicClasses(.Text))</D
 
 <Method name="ReplaceRegexp">
 <Description>
+Replaces all occurances of Pattern with ReplacePattern.
 w $System.Status.GetErrorText(##class(SMR.Main).ReplaceRegexp(.Text))</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec><![CDATA[&Text,Pattern:%String="\.\$([a-zA-Z])",ReplacePattern:%String="\.\%\U$1"]]></FormalSpec>
