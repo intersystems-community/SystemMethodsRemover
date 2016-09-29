@@ -97,16 +97,16 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClass())</Description>
 <Implementation><![CDATA[
 	#Dim sc As %Status = $$$OK
 	
-	Set sc = ##class(%Compiler.UDL.TextServices).GetTextAsString(, Class, .Text)
+	Set sc = ##class(SMR.TextServices).GetTextAsString(, Class, .Text)
 	Quit:$$$ISERR(sc) sc
 	
-	/*Set sc = ..ReplaceSystemCalls(.Text, Replace, Capitalize)
+	Set sc = ..ReplaceSystemCalls(.Text, Replace, Capitalize)
 	Quit:$$$ISERR(sc) sc
 	
 	Set sc = ..ReplaceDynamicClasses(.Text)
-	Quit:$$$ISERR(sc) sc*/
+	Quit:$$$ISERR(sc) sc
 	
-	Set sc = ##class(%Compiler.UDL.TextServices).SetTextFromString(, Class, .Text)	
+	Set sc = ##class(SMR.TextServices).SetTextFromString(, Class, .Text)	
 	Quit sc
 ]]></Implementation>
 </Method>
