@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="SMR.Main">
+<Abstract>1</Abstract>
+<TimeCreated>64190,49345.679318</TimeCreated>
+
+<Method name="RemoveFromAllClasses">
+<Description>
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromAllClasses())</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#Dim sc As %Status = $$$OK
+	set sc = $System.OBJ.GetClassList(.Classes, "/application=0 /system=0 /percent=0 /mapped=0")
+	Quit:$$$ISERR(sc)
+	Set sc = ..RemoveFromClassLocal(.Classes)
+	Return sc
+]]></Implementation>
+</Method>
+
+<Method name="RemoveFromSubclassesOf">
+<Description>
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromSubclassesOf())</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Class:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#Dim sc As %Status = $$$OK
+	Set RS = ##class(%ResultSet).%New("%Dictionary.ClassDefinition:SubclassOf")
+	Set sc = RS.%Execute(Class)
+	Quit:$$$ISERR(sc) 
+	
+	Set Classes(Class) = ""
+
+	While (RS.%Next(.sc)) {
+		Quit:$$$ISERR(sc)		
+		Set Classes(RS.Data("Name")) = ""
+	}
+	
+	Set sc = ..RemoveFromClassLocal(.Classes)
+	Return sc
+]]></Implementation>
+</Method>
+
+<Method name="RemoveFromMatchingClasses">
+<Description>
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromMatchingClasses())</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Mask:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#Dim sc As %Status = $$$OK
+	
+	Set SQL = "SELECT ID FROM %Dictionary.ClassDefinition Where ID LIKE ?"
+	Set ST = ##class(%SQL.Statement).%New()
+	Set sc = ST.%Prepare(SQL)
+	Quit:$$$ISERR(sc) sc
+	
+	#Dim RS As %SQL.StatementResult
+	Set RS = ST.%Execute(Mask)
+	
+	While RS.%Next() {
+		Set Classes(RS.%GetData(1)) = ""
+	}
+	
+	Set sc = ..RemoveFromClassLocal(.Classes)
+	Return sc
+]]></Implementation>
+</Method>
+
+<Method name="RemoveFromClassLocal">
+<Description>
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClassLocal())</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&Classes:%String]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#Dim sc,sc1 As %Status = $$$OK
+	Set Class = ""
+	For { 
+		Set Class = $Order(Classes(Class)) 
+		Quit:Class=""
+		Set sc1 = ..RemoveFromClass(Class)
+		Set sc = $$$ADDSC(sc, sc1)		
+	}
+	Return sc
+]]></Implementation>
+</Method>
+
+<Method name="RemoveFromClass">
+<Description>
+w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClass())</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Class:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#Dim sc As %Status = $$$OK
+	w Class,!
+	Return sc
+]]></Implementation>
+</Method>
+</Class>
+</Export>
