@@ -8,13 +8,14 @@
 <Description>
 w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromAllClasses())</Description>
 <ClassMethod>1</ClassMethod>
+<FormalSpec>Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	#Dim sc As %Status = $$$OK
 	set sc = $System.OBJ.GetClassList(.Classes, "/application=0 /system=0 /percent=0 /mapped=0")
 	Quit:$$$ISERR(sc)
-	Set sc = ..RemoveFromClassLocal(.Classes)
-	Return sc
+	Set sc = ..RemoveFromClassLocal(.Classes, Replace, Capitalize)
+	Quit sc
 ]]></Implementation>
 </Method>
 
@@ -22,7 +23,7 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromAllClasses())</Descrip
 <Description>
 w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromSubclassesOf())</Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>Class:%String</FormalSpec>
+<FormalSpec>Class:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	#Dim sc As %Status = $$$OK
@@ -37,8 +38,8 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromSubclassesOf())</Descr
 		Set Classes(RS.Data("Name")) = ""
 	}
 	
-	Set sc = ..RemoveFromClassLocal(.Classes)
-	Return sc
+	Set sc = ..RemoveFromClassLocal(.Classes, Replace, Capitalize)
+	Quit sc
 ]]></Implementation>
 </Method>
 
@@ -46,7 +47,7 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromSubclassesOf())</Descr
 <Description>
 w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromMatchingClasses())</Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>Mask:%String</FormalSpec>
+<FormalSpec>Mask:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	#Dim sc As %Status = $$$OK
@@ -63,8 +64,8 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromMatchingClasses())</De
 		Set Classes(RS.%GetData(1)) = ""
 	}
 	
-	Set sc = ..RemoveFromClassLocal(.Classes)
-	Return sc
+	Set sc = ..RemoveFromClassLocal(.Classes, Replace, Capitalize)
+	Quit sc
 ]]></Implementation>
 </Method>
 
@@ -72,7 +73,7 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromMatchingClasses())</De
 <Description>
 w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClassLocal())</Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec><![CDATA[&Classes:%String]]></FormalSpec>
+<FormalSpec><![CDATA[&Classes:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES]]></FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	#Dim sc,sc1 As %Status = $$$OK
@@ -80,10 +81,10 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClassLocal())</Descrip
 	For { 
 		Set Class = $Order(Classes(Class)) 
 		Quit:Class=""
-		Set sc1 = ..RemoveFromClass(Class)
+		Set sc1 = ..RemoveFromClass(Class, Replace, Capitalize)
 		Set sc = $$$ADDSC(sc, sc1)		
 	}
-	Return sc
+	Quit sc
 ]]></Implementation>
 </Method>
 
@@ -91,12 +92,72 @@ w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClassLocal())</Descrip
 <Description>
 w $System.Status.GetErrorText(##class(SMR.Main).RemoveFromClass())</Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>Class:%String</FormalSpec>
+<FormalSpec>Class:%String,Replace:%String="%",Capitalize:%Boolean=$$$YES</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	#Dim sc As %Status = $$$OK
-	w Class,!
+	
+	Set sc = ##class(%Compiler.UDL.TextServices).GetTextAsString(, Class, .Text)
+	Quit:$$$ISERR(sc) sc
+	
+	/*Set sc = ..ReplaceSystemCalls(.Text, Replace, Capitalize)
+	Quit:$$$ISERR(sc) sc
+	
+	Set sc = ..ReplaceDynamicClasses(.Text)
+	Quit:$$$ISERR(sc) sc*/
+	
+	Set sc = ##class(%Compiler.UDL.TextServices).SetTextFromString(, Class, .Text)	
+	Quit sc
+]]></Implementation>
+</Method>
+
+<Method name="ReplaceSystemCalls">
+<Description>
+w $System.Status.GetErrorText(##class(SMR.Main).ReplaceText(.Text))</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&Text,Replace:%String="%",Capitalize:%Boolean=$$$YES]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Set Position = 1
+	For {
+		Set Position = $Find(Text, ".$", Position)
+		Quit:Position=0
+		Set:Capitalize $Extract(Text, Position) = $ZCVT($Extract(Text, Position), "U")
+		Set $Extract(Text, Position-1) = Replace
+	}
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="ReplaceDynamicClasses">
+<Description>
+Replace %Library.Object with %Library.DynamicObject etc
+w $System.Status.GetErrorText(##class(SMR.Main).ReplaceDynamicClasses(.Text))</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&Text]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#Dim sc,sc1 As %Status = $$$OK
+	Set ReplaceList = $LB($LB("%Library\.Object","%Library.DynamicObject"),$LB("%Object","%DynamicObject"),$LB("%Library.Array","%Library.DynamicArray"),$LB("%Array","%DynamicArray"))
+	For i=1:1:$LL(ReplaceList) {
+		Set ReplacePair = $LG(ReplaceList, i)
+		Set sc1 = ..ReplaceRegexp(.Text, $LG(ReplacePair, 1), $LG(ReplacePair, 2))
+		Set sc = $$$ADDSC(sc, sc1)
+	}
 	Return sc
+]]></Implementation>
+</Method>
+
+<Method name="ReplaceRegexp">
+<Description>
+w $System.Status.GetErrorText(##class(SMR.Main).ReplaceRegexp(.Text))</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&Text,Pattern:%String="\.\$([a-zA-Z])",ReplacePattern:%String="\.\%\U$1"]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#Dim Matcher As %Regex.Matcher = ##class(%Regex.Matcher).%New(Pattern, Text)
+	Set Text = Matcher.ReplaceAll(ReplacePattern)
+    Quit Matcher.Status
 ]]></Implementation>
 </Method>
 </Class>
