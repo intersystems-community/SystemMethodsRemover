@@ -1,7 +1,7 @@
 # SystemMethodsRemover
-Removes system ($) methods from the codebase. Tool for InterSystems Caché
+Removes system ($) methods from the codebase. Tool for InterSystems Caché.
 
-It currently does 3 things:
+## What it does?
 
 1. Replaces `.$` with `.<something of your choice>` (`.%` by default)
 2. Capitalizes the letter after `$`
@@ -24,7 +24,7 @@ Arguments:
 - `Class` - class which subclasses the utility would try to convert (including the class)
 - 'Mask' -  pattern, value for the SQL query `SELECT ID FROM %Dictionary.ClassDefinition Where ID LIKE ?`
 
-More docs are in the code docs.
+More docs are in the code docs. The utility works only in a current namespace.
 
 ## Requirements
 
