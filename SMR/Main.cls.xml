@@ -139,6 +139,7 @@ w $System.Status.GetErrorText(##class(SMR.Main).ReplaceText(.Text))]]></Descript
 	For {
 		Set Position = $Find(Text, ".$", Position)
 		Quit:Position=0
+		CONTINUE:$Extract(Text, Position+1)="$" // skip .$$$ macros
 		Set:Capitalize $Extract(Text, Position) = $ZCVT($Extract(Text, Position), "U")
 		Set $Extract(Text, Position-1) = Replace
 	}
