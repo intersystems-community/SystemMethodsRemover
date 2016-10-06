@@ -22,7 +22,7 @@ Arguments:
 - `Replace` - what to replace `$` with (`%` by default but, for example, you can specify `$$$`)
 - `Capitalize` - capitalize the letter after $ (boolean, yse by default)
 - `Class` - class which subclasses the utility would try to convert (including the class)
-- 'Mask' -  passed into the SQL query `SELECT ID FROM %Dictionary.ClassDefinition Where ID LIKE ?`
+- `Mask` -  passed into the SQL query `SELECT ID FROM %Dictionary.ClassDefinition Where ID LIKE ?`
 
 More docs are in the code docs. The utility works only in a current namespace.
 
