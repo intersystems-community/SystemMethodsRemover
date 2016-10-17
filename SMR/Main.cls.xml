@@ -156,10 +156,10 @@ w $System.Status.GetErrorText(##class(SMR.Main).ReplaceDynamicClasses(.Text))</D
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	#Dim sc,sc1 As %Status = $$$OK
-	Set ReplaceList = $LB(	$LB("%Library\.Object","%Library\.DynamicObject"),
-							$LB("%Object","%DynamicObject"),
-							$LB("%Library\.Array","%Library\.DynamicArray"),
-							$LB("%Array","%DynamicArray"))
+	Set ReplaceList = $LB(	$LB("%Library\.Object\b","%Library\.DynamicObject"),
+							$LB("%Object\b","%DynamicObject"),
+							$LB("%Library\.Array\b","%Library\.DynamicArray"),
+							$LB("%Array\b","%DynamicArray"))
 	For i=1:1:$LL(ReplaceList) {
 		Set ReplacePair = $LG(ReplaceList, i)
 		Set sc1 = ..ReplaceRegexp(.Text, $LG(ReplacePair, 1), $LG(ReplacePair, 2))
